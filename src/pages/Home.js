@@ -9,7 +9,7 @@ export default function Home() {
 
   return (
     <div style={{ maxWidth: 700, margin: "40px auto" }}>
-      <h2>Home</h2>
+      <h2>Home2</h2>
 
       {canSeeDashboard && (
         <button onClick={() => nav("/dashboard")}>Dashboard</button>
