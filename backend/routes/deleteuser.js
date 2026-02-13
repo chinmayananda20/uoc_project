@@ -1,7 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const User = require("../models/User")
-const fetchUsers = require("../middlewares/fetchUsers")
+const fetchUsers = require("../middlewares/auth")
 router.delete('/',fetchUsers,async (req, res) => {
     const {_id }=req.body
     try {
