@@ -2,7 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthContext";
 import RequireAuth from "./auth/RequireAuth";
 import RequireRole from "./auth/RequireRole";
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home";
@@ -15,6 +16,15 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+          <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        theme="colored"
+      />
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
@@ -37,7 +47,7 @@ export default function App() {
             }
           />
 <Route
-  path="/dashboard"
+  path="/admindashboard"
   element={
     <RequireRole role={["admin", "staff"]}>
       <Dashboard />

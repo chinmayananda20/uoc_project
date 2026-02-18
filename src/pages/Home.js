@@ -12,7 +12,7 @@ export default function Home() {
       <h2>Home2</h2>
 
       {canSeeDashboard && (
-        <button onClick={() => nav("/dashboard")}>Dashboard</button>
+        <button onClick={() => nav("/admindashboard")}>Admin Dashboard</button>
       )}
 
       <button

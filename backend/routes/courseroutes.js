@@ -22,7 +22,7 @@ router.delete("/:id", auth, requireRole("admin"), deleteCourse);
 router.get(
   "/admin",
   auth,
-  requireRole("admin"),
+  requireRole("admin", "staff"),
   getAllCoursesAdmin
 );
 // PUBLIC routes

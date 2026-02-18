@@ -11,7 +11,7 @@ const {
 } = require("../controllers/adminUserController");
 
 // Admin-only: list users
-router.get("/users", auth, requireRole("admin"), adminListUsers);
+router.get("/users", auth, requireRole("admin","staff"), adminListUsers);
 
 // Admin-only: update role
 router.patch("/users/:id/role", auth, requireRole("admin"), adminUpdateUserRole);

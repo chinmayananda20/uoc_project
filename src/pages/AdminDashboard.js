@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AdminUsersPanel from "../components/AdminUsersPanel";
-import CreateAdminPanel from "../components/createAdminPanel";
 import {
   adminCreateCourse,
   adminDeleteCourse,
@@ -148,7 +146,7 @@ export default function AdminDashboard() {
   return (
     
     <div style={{ maxWidth: 980, margin: "40px auto", padding: "0 16px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+      {/* <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
         <h2 style={{ margin: 0 }}>Admin Dashboard</h2>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontSize: 13, opacity: 0.8 }}>Role: {role}</span>
@@ -222,7 +220,7 @@ export default function AdminDashboard() {
             </button>
           </div>
         </form>
-      </div>
+      </div> */}
 
       <div style={{ marginTop: 24 }}>
         <h3>All Courses (Admin)</h3>
@@ -283,8 +281,6 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
-      <AdminUsersPanel />
-      <CreateAdminPanel />
     </div>
   );
 }

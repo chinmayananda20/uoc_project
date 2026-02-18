@@ -30,7 +30,7 @@ exports.createCourse = async (req, res) => {
 exports.getCourses = async (req, res) => {
   try {
     const courses = await Course.find({ published: true })
-      .select("title description level tags")
+      .select("title description level tags createdBy")
       .sort({ createdAt: -1 });
 
     return res.json(courses);
@@ -98,7 +98,7 @@ exports.setCoursePublished = async (req, res) => {
 exports.getAllCoursesAdmin = async (req, res) => {
   try {
     const courses = await Course.find({})
-      .select("title description level tags published createdAt")
+      .select("title description level tags published createdAt createdBy")
       .sort({ createdAt: -1 });
 
     return res.json(courses);
