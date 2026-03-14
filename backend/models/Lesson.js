@@ -1,5 +1,40 @@
 const mongoose = require("mongoose");
 
+const SlideElementSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      required: true,
+      enum: ["heading", "subheading", "text", "image", "bullets"],
+    },
+    data: {
+      type: mongoose.Schema.Types.Mixed,
+      required: true,
+      default: {},
+    },
+  },
+  { _id: false }
+);
+
+const SlideSchema = new mongoose.Schema(
+  {
+    elements: {
+      type: [SlideElementSchema],
+      required: true,
+      default: [],
+      validate: {
+        validator(arr) {
+          return Array.isArray(arr) && arr.length > 0;
+        },
+        message: "Each slide must have at least one element",
+      },
+    },
+    // optional admin label for their own reference
+    label: { type: String, trim: true, maxlength: 80, default: "" },
+  },
+  { _id: true }
+);
+
 const LessonSchema = new mongoose.Schema(
   {
     courseId: {
@@ -16,10 +51,17 @@ const LessonSchema = new mongoose.Schema(
       maxlength: 150,
     },
 
-    // Micro-lesson content
-    content: {
-      type: String, // markdown for now (simple + flexible)
+    // NEW: slide structure
+    slides: {
+      type: [SlideSchema],
       required: true,
+      default: [],
+      validate: {
+        validator(arr) {
+          return Array.isArray(arr) && arr.length > 0;
+        },
+        message: "slides are required and must contain at least one slide",
+      },
     },
 
     order: {
@@ -34,23 +76,6 @@ const LessonSchema = new mongoose.Schema(
       min: 1,
       max: 30,
     },
-
-    // hasQuiz: {
-    //   type: Boolean,
-    //   default: false,
-    // },
-
-    // quizId: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "Quiz", // optional, can be null
-    //   default: null,
-    // },
-
-    // published: {
-    //   type: Boolean,
-    //   default: false,
-    //   index: true,
-    // },
   },
   { timestamps: true }
 );

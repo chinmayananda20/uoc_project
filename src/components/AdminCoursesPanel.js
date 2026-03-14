@@ -7,7 +7,8 @@ import { FaArrowCircleRight } from "react-icons/fa";
 import { adminDeleteCourse } from "../api/admin.api";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { HiOutlinePlayCircle } from "react-icons/hi2";
-
+import AdminCourseBuilder from "./AdminCourseBuilder";
+import { useCallback } from "react";
 import {
   HiOutlineBookOpen,
   HiOutlineUser,
@@ -15,11 +16,7 @@ import {
 } from "react-icons/hi2";
 import { adminSetCoursePublished } from "../api/admin.api";
 import AdminCourseCreateForm from "./AdminCourseCreateForm";
-import {
-  HiOutlinePencilSquare,
-  HiOutlineEyeSlash,
-  HiOutlineEye,
-} from "react-icons/hi2";
+import { HiOutlineEyeSlash, HiOutlineEye } from "react-icons/hi2";
 
 const AdminCoursesPanel = () => {
   const { userId } = useAuth();
@@ -27,10 +24,12 @@ const AdminCoursesPanel = () => {
   const [users, setUsers] = useState([]);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState("list"); // "list" | "courseForm" | "manage"
+  const [selectedCourse, setSelectedCourse] = useState(null);
   const [err, setErr] = useState("");
-  const [flag, setFlag] = useState(false);
   const [deletingCourseId, setDeletingCourseId] = useState(null);
   const [confirmDeleteCourse, setConfirmDeleteCourse] = useState(null);
+  const [search, setSearch] = useState("");
   const handleDeleteDraft = async () => {
     if (!confirmDeleteCourse) return;
 
@@ -50,7 +49,39 @@ const AdminCoursesPanel = () => {
       setDeletingCourseId(null);
     }
   };
+  const usersById = useMemo(() => {
+    const map = new Map();
+    for (const u of users || []) map.set(String(u._id), u);
+    return map;
+  }, [users]);
+  const getUserNameById = (id) => usersById.get(String(id))?.name || "Unknown";
 
+  const matchesCourse = useCallback(
+  (course) => {
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+
+    const title = String(course?.title || "").toLowerCase();
+    const desc = String(course?.description || "").toLowerCase();
+    const level = String(course?.level || "").toLowerCase();
+    const tags = Array.isArray(course?.tags)
+      ? course.tags.join(" ").toLowerCase()
+      : "";
+
+    const creatorName = String(
+      usersById.get(String(course?.createdBy))?.name || ""
+    ).toLowerCase();
+
+    return (
+      title.includes(q) ||
+      desc.includes(q) ||
+      level.includes(q) ||
+      tags.includes(q) ||
+      creatorName.includes(q)
+    );
+  },
+  [search, usersById]
+);
   useEffect(() => {
     let cancelled = false;
 
@@ -75,13 +106,27 @@ const AdminCoursesPanel = () => {
       cancelled = true;
     };
   }, []);
-  const usersById = useMemo(() => {
-    const map = new Map();
-    for (const u of users || []) map.set(String(u._id), u);
-    return map;
-  }, [users]);
+  const applyCourseUpdate = (updatedCourse) => {
+    if (!updatedCourse?._id) return;
 
-  const getUserNameById = (id) => usersById.get(String(id))?.name || "Unknown";
+    setCourses((prev) =>
+      (prev || []).map((c) =>
+        c._id === updatedCourse._id ? { ...c, ...updatedCourse } : c,
+      ),
+    );
+
+    // keep manage screen in sync too
+    setSelectedCourse((prev) =>
+      prev?._id === updatedCourse._id ? { ...prev, ...updatedCourse } : prev,
+    );
+
+    // also keep editingCourse in sync if you use it
+    setEditingCourse((prev) =>
+      prev?._id === updatedCourse._id ? { ...prev, ...updatedCourse } : prev,
+    );
+  };
+  
+
 
   const stats = useMemo(() => {
     const all = courses || [];
@@ -132,27 +177,27 @@ const AdminCoursesPanel = () => {
   }, [courses, userId]);
   const myPublished = useMemo(() => {
     const me = String(userId || "");
-    return (courses || []).filter(
-      (c) => String(c?.createdBy || "") === me && !!c?.published,
-    );
-  }, [courses, userId]);
+    return (courses || [])
+      .filter((c) => String(c?.createdBy || "") === me && !!c?.published)
+      .filter(matchesCourse);
+  }, [courses, userId, matchesCourse]);
 
   const myDrafts = useMemo(() => {
     const me = String(userId || "");
-    return (courses || []).filter(
-      (c) => String(c?.createdBy || "") === me && !c?.published,
-    );
-  }, [courses, userId]);
+    return (courses || [])
+      .filter((c) => String(c?.createdBy || "") === me && !c?.published)
+      .filter(matchesCourse);
+  }, [courses, userId, matchesCourse]);
   const addCourseToList = (newCourse) => {
     setCourses((prev) => [newCourse, ...(prev || [])]);
   };
 
   const othersPublished = useMemo(() => {
     const me = String(userId || "");
-    return (courses || []).filter(
-      (c) => String(c?.createdBy || "") !== me && !!c?.published,
-    );
-  }, [courses, userId]);
+    return (courses || [])
+      .filter((c) => String(c?.createdBy || "") !== me && !!c?.published)
+      .filter(matchesCourse);
+  }, [courses, userId, matchesCourse]);
 
   const Card = ({
     title,
@@ -219,9 +264,13 @@ const AdminCoursesPanel = () => {
 
   const handleEdit = (course) => {
     setEditingCourse(course);
-    setFlag(true); // open form
+    setView("courseForm");
   };
-
+  const handleManage = (course) => {
+    setSelectedCourse(course);
+    setEditingCourse(course); // so Details tab can edit same course
+    setView("manage");
+  };
   const handlePublishToggle = async (courseId, nextPublished) => {
     setErr("");
     setBusyCourseId(courseId);
@@ -238,202 +287,235 @@ const AdminCoursesPanel = () => {
       setBusyCourseId(null);
     }
   };
-  const CourseCard = ({ course, variant, onEdit, onTogglePublish, busy }) => {
-  const tags = Array.isArray(course?.tags) ? course.tags : [];
-  const isPublished = Boolean(course?.published);
+  const badgeClasses = (published) =>
+    published
+      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+      : "border-amber-200 bg-amber-50 text-amber-700";
 
-  const createdAtLabel = useMemo(() => {
-    const d = course?.createdAt ? new Date(course.createdAt) : null;
-    if (!d || Number.isNaN(d.getTime())) return "—";
-    return d.toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-    });
-  }, [course?.createdAt]);
+  const stripClasses = (published) =>
+    published
+      ? "bg-gradient-to-r from-emerald-500 to-emerald-700"
+      : "bg-gradient-to-r from-amber-400 to-amber-600";
 
-  return (
-    <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
-      {/* Top gradient strip */}
-      <div
-        className={[
-          "h-1.5 w-full",
-          isPublished ? "bg-gradient-to-r from-emerald-500 to-emerald-700" : "bg-gradient-to-r from-amber-400 to-amber-600",
-        ].join(" ")}
-      />
+  const iconBoxClasses = (published) =>
+    published
+      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+      : "border-amber-200 bg-amber-50 text-amber-700";
+  const CourseCard = ({
+    course,
+    variant, // "mine" | "other"
+    onEdit,
+    onManage,
+    onTogglePublish,
+    busy,
+  }) => {
+    const tags = Array.isArray(course?.tags) ? course.tags : [];
+    const isPublished = Boolean(course?.published);
 
-      <div className="p-5">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h4 className="truncate text-lg font-extrabold text-slate-900">
-                {course?.title || "Untitled course"}
-              </h4>
+    const createdAtLabel = useMemo(() => {
+      const d = course?.createdAt ? new Date(course.createdAt) : null;
+      if (!d || Number.isNaN(d.getTime())) return "—";
+      return d.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
+    }, [course?.createdAt]);
 
-              <span
-                className={[
-                  "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold",
-                  isPublished
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                    : "border-amber-200 bg-amber-50 text-amber-700",
-                ].join(" ")}
-              >
-                {isPublished ? "Published" : "Draft"}
-              </span>
+    const updatedAtLabel = useMemo(() => {
+      const d = course?.updatedAt ? new Date(course.updatedAt) : null;
+      if (!d || Number.isNaN(d.getTime())) return "—";
+      return d.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
+    }, [course?.updatedAt]);
+
+    const ownerLabel =
+      variant === "other"
+        ? `Created by ${getUserNameById(course?.createdBy)}`
+        : `Level: ${course?.level || "—"}`;
+
+    return (
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-lg">
+        {/* Status strip */}
+        <div
+          className={[
+            "h-1.5 w-full rounded-t-2xl",
+            stripClasses(isPublished),
+          ].join(" ")}
+        />
+
+        <div className="p-5">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h4 className="truncate text-lg font-extrabold text-slate-900">
+                  {course?.title || "Untitled course"}
+                </h4>
+
+                <span
+                  className={[
+                    "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold",
+                    badgeClasses(isPublished),
+                  ].join(" ")}
+                >
+                  {isPublished ? "Published" : "Draft"}
+                </span>
+              </div>
+
+              <p className="mt-2 line-clamp-2 text-sm text-slate-600">
+                {course?.description || "No description"}
+              </p>
             </div>
 
-            <p className="mt-2 line-clamp-2 text-sm text-slate-600">
-              {course?.description || "No description"}
-            </p>
+            <div
+              className={[
+                "shrink-0 rounded-2xl border p-3",
+                iconBoxClasses(isPublished),
+              ].join(" ")}
+              title={isPublished ? "Published" : "Draft"}
+            >
+              {isPublished ? (
+                <HiOutlineEye className="h-6 w-6" />
+              ) : (
+                <HiOutlineEyeSlash className="h-6 w-6" />
+              )}
+            </div>
           </div>
 
-          {/* Subtle icon badge */}
-          <div
-            className={[
-              "shrink-0 rounded-2xl border p-3 transition",
-              isPublished
-                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                : "border-amber-200 bg-amber-50 text-amber-700",
-            ].join(" ")}
-          >
-            {isPublished ? (
-              <HiOutlineEye className="h-6 w-6" />
+          {/* Meta */}
+          <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+            <span className="font-semibold text-slate-700">{ownerLabel}</span>
+            <span className="text-slate-300">•</span>
+
+            <span>
+              Created{" "}
+              <span className="font-semibold text-slate-700">
+                {createdAtLabel}
+              </span>
+            </span>
+
+            <span className="text-slate-300">•</span>
+
+            <span>
+              Updated{" "}
+              <span className="font-semibold text-slate-700">
+                {updatedAtLabel}
+              </span>
+            </span>
+          </div>
+
+          {/* Tags */}
+          <div className="mt-4 flex flex-wrap gap-2">
+            {tags.length ? (
+              <>
+                {tags.slice(0, 5).map((t, idx) => (
+                  <span
+                    key={`${t}-${idx}`}
+                    className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
+                    title={t}
+                  >
+                    {t}
+                  </span>
+                ))}
+                {tags.length > 5 ? (
+                  <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-500">
+                    +{tags.length - 5}
+                  </span>
+                ) : null}
+              </>
             ) : (
-              <HiOutlineEyeSlash className="h-6 w-6" />
+              <span className="text-xs text-slate-400">No tags</span>
+            )}
+          </div>
+
+          {/* Actions: stable layout */}
+          <div className="mt-5 border-t border-slate-100 pt-4">
+            {variant === "other" ? (
+              <div className="flex items-center justify-between">
+                <div className="text-xs text-slate-400">Read-only</div>
+                <button
+                  type="button"
+                  onClick={() => console.log("Preview course:", course)}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                >
+                  <HiOutlinePlayCircle className="h-5 w-5" />
+                  Preview
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {/* Preview */}
+                <button
+                  type="button"
+                  onClick={() => console.log("Preview course:", course)}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                >
+                  <HiOutlinePlayCircle className="h-5 w-5" />
+                  Preview
+                </button>
+
+                {/* Manage */}
+                <button
+                  type="button"
+                  onClick={() => onManage?.(course)}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                >
+                  <HiOutlineBookOpen className="h-5 w-5" />
+                  Manage
+                </button>
+
+                {/* Edit */}
+
+                {/* Publish toggle */}
+                <button
+                  type="button"
+                  onClick={() => onTogglePublish?.(course._id, !isPublished)}
+                  disabled={busy}
+                  className={[
+                    "inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-white disabled:opacity-60",
+                    isPublished
+                      ? "bg-rose-600 hover:bg-rose-700"
+                      : "bg-emerald-600 hover:bg-emerald-700",
+                  ].join(" ")}
+                >
+                  {isPublished ? (
+                    <HiOutlineEyeSlash className="h-5 w-5" />
+                  ) : (
+                    <HiOutlineEye className="h-5 w-5" />
+                  )}
+                  {busy ? "Updating..." : isPublished ? "Unpublish" : "Publish"}
+                </button>
+
+                {/* Delete draft - full width on small rows */}
+                {!isPublished && (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmDeleteCourse(course)}
+                    disabled={deletingCourseId === course._id}
+                    className="col-span-2 sm:col-span-4 inline-flex items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100 disabled:opacity-60"
+                    title="Delete draft"
+                  >
+                    <HiOutlineTrash className="h-5 w-5" />
+                    {deletingCourseId === course._id
+                      ? "Deleting..."
+                      : "Delete Draft"}
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>
-
-        {/* Meta row */}
-        <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-500">
-          {variant === "other" ? (
-            <span>
-              Created by:{" "}
-              <span className="font-semibold text-slate-700">
-                {getUserNameById(course?.createdBy)}
-              </span>
-            </span>
-          ) : (
-            <span>
-              Level:{" "}
-              <span className="font-semibold text-slate-700">
-                {course?.level || "—"}
-              </span>
-            </span>
-          )}
-
-          <span className="text-slate-300">•</span>
-
-          <span>
-            Created:{" "}
-            <span className="font-semibold text-slate-700">
-              {createdAtLabel}
-            </span>
-          </span>
-        </div>
-
-        {/* Tags */}
-        <div className="mt-4 flex flex-wrap gap-2">
-          {tags.length ? (
-            tags.slice(0, 6).map((t, idx) => (
-              <span
-                key={`${t}-${idx}`}
-                className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
-                title={t}
-              >
-                {t}
-              </span>
-            ))
-          ) : (
-            <span className="text-xs text-slate-400">No tags</span>
-          )}
-
-          {tags.length > 6 ? (
-            <span className="rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-500 border border-slate-200">
-              +{tags.length - 6} more
-            </span>
-          ) : null}
-        </div>
-
-        {/* Actions */}
-        <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
-          {variant === "other" ? (
-            <div className="text-xs text-slate-400">Read-only</div>
-          ) : (
-            <div className="flex items-center gap-2">
-              {/* Preview (button only for now) */}
-              <button
-                type="button"
-                onClick={() => console.log("Preview course:", course)}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-              >
-                <HiOutlinePlayCircle className="h-5 w-5" />
-                Preview
-              </button>
-
-              <button
-                type="button"
-                onClick={() => onEdit(course)}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-              >
-                <HiOutlinePencilSquare className="h-5 w-5" />
-                Edit
-              </button>
-
-              {/* Delete only drafts */}
-              {!isPublished && (
-                <button
-                  type="button"
-                  onClick={() => setConfirmDeleteCourse(course)}
-                  disabled={deletingCourseId === course._id}
-                  className="inline-flex items-center justify-center rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-rose-700 hover:bg-rose-100 disabled:opacity-60"
-                  title="Delete draft"
-                >
-                  <HiOutlineTrash className="h-5 w-5" />
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Publish toggle (only for your own courses) */}
-          {variant !== "other" ? (
-            isPublished ? (
-              <button
-                type="button"
-                onClick={() => onTogglePublish(course._id, false)}
-                disabled={busy}
-                className="inline-flex items-center gap-2 rounded-lg bg-rose-600 px-3 py-2 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-60"
-              >
-                <HiOutlineEyeSlash className="h-5 w-5" />
-                {busy ? "Updating..." : "Unpublish"}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => onTogglePublish(course._id, true)}
-                disabled={busy}
-                className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
-              >
-                <HiOutlineEye className="h-5 w-5" />
-                {busy ? "Updating..." : "Publish"}
-              </button>
-            )
-          ) : (
-            <div className="text-xs text-slate-400">
-              Published content only
-            </div>
-          )}
-        </div>
       </div>
-    </div>
-  );
-};
-
+    );
+  };
 
   return (
     <>
-      {!flag ? (
+      {view === "list" ? (
         <div className="w-full">
           <div className="flex items-end justify-between gap-3">
             <div>
@@ -445,7 +527,31 @@ const AdminCoursesPanel = () => {
               </p>
             </div>
           </div>
+          <div className="mt-6 w-full sm:max-w-md">
+  <label className="text-sm font-semibold text-slate-700">
+    Search courses
+  </label>
 
+  <div className="relative mt-2">
+    <input
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+      placeholder="Search by title, description, tags, level, or creator..."
+      className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+    />
+
+    {search && (
+      <button
+        type="button"
+        onClick={() => setSearch("")}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
+        aria-label="Clear search"
+      >
+        ✕
+      </button>
+    )}
+  </div>
+</div>
           {err ? (
             <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700">
               {err}
@@ -500,8 +606,8 @@ const AdminCoursesPanel = () => {
     active:translate-y-0 active:shadow-sm
     focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
             onClick={() => {
-              setFlag(true);
               setEditingCourse(null);
+              setView("courseForm");
             }}
           >
             <MdCreateNewFolder className="text-5xl m-5" />
@@ -543,6 +649,7 @@ const AdminCoursesPanel = () => {
                       key={c._id}
                       course={c}
                       variant="mine"
+                      onManage={handleManage}
                       onEdit={handleEdit}
                       onTogglePublish={handlePublishToggle}
                       busy={busyCourseId === c._id}
@@ -580,6 +687,7 @@ const AdminCoursesPanel = () => {
                       course={c}
                       variant="mine"
                       onEdit={handleEdit}
+                      onManage={handleManage}
                       onTogglePublish={handlePublishToggle}
                       busy={busyCourseId === c._id}
                     />
@@ -668,11 +776,14 @@ const AdminCoursesPanel = () => {
             </div>
           )}
         </div>
-      ) : (
+      ) : view === "courseForm" ? (
         <AdminCourseCreateForm
           setFlag={(v) => {
-            setFlag(v);
-            if (!v) setEditingCourse(null); // reset when leaving form
+            // keep prop name for now so you don't refactor form yet
+            if (v === false) {
+              setView("list");
+              setEditingCourse(null);
+            }
           }}
           addCourseToList={addCourseToList}
           updateCoursePublished={(id, published) => {
@@ -684,10 +795,26 @@ const AdminCoursesPanel = () => {
           onCourseUpdated={(updatedCourse) => {
             setCourses((prev) =>
               prev.map((c) =>
-                c._id === updatedCourse._id ? updatedCourse : c,
+                c._id === updatedCourse._id ? { ...c, ...updatedCourse } : c,
               ),
             );
+
+            setEditingCourse((prev) =>
+              prev?._id === updatedCourse._id
+                ? { ...prev, ...updatedCourse }
+                : prev,
+            );
           }}
+        />
+      ) : (
+        <AdminCourseBuilder
+          course={selectedCourse}
+          onBack={() => {
+            setView("list");
+            setSelectedCourse(null);
+            setEditingCourse(null);
+          }}
+          onCourseUpdated={applyCourseUpdate}
         />
       )}
     </>

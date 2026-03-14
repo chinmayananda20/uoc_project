@@ -26,9 +26,9 @@ export async function adminDeleteLesson(lessonId) {
 
 // GET /api/courses/:courseId/lessons
 // requires auth + enrollment middleware (in your backend)
-export async function getLessonsByCourse(courseId) {
+export async function listLessonsByCourse(courseId) {
   const res = await api.get(`/courses/${courseId}/lessons`);
-  return res.data; // [{ title, order, estimatedTime, _id? }]
+  return res.data;
 }
 
 // GET /api/lessons/:lessonId

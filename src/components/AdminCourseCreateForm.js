@@ -5,11 +5,11 @@ import {
   adminUpdateCourse,
 } from "../api/admin.api";
 import { toast } from "react-toastify";
-
 const LEVELS = ["beginner", "intermediate", "advanced"];
 
 const AdminCourseCreateForm = ({
   setFlag,
+  onBack,
   addCourseToList,
   updateCoursePublished,
   editingCourse,
@@ -18,13 +18,11 @@ const AdminCourseCreateForm = ({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [level, setLevel] = useState("beginner");
-
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState([]);
 
-  const [err, setErr] = useState("");
   const [saving, setSaving] = useState(false);
-
+  const [err, setErr] = useState("");
   const canSubmit = useMemo(() => {
     return (
       title.trim().length >= 2 && description.trim().length >= 10 && !saving
@@ -74,35 +72,39 @@ const AdminCourseCreateForm = ({
     };
 
     try {
-      // EDIT
       if (isEdit) {
         const updated = await adminUpdateCourse(editingCourse._id, payload);
 
-        // if backend doesn't return published field, keep old
         const merged = { ...editingCourse, ...updated };
-
         onCourseUpdated?.(merged);
 
-        // optional: allow publishing from edit
+        toast.success("Course updated successfully");
+
         if (publish && merged.published !== true) {
           await adminSetCoursePublished(merged._id, true);
           updateCoursePublished?.(merged._id, true);
           onCourseUpdated?.({ ...merged, published: true });
+
+          toast.success("Course published successfully");
         }
 
-        setFlag(false);
+        if (onBack) onBack();
+        else if (setFlag) setFlag(false);
+
         return;
       }
 
       // CREATE
       const course = await adminCreateCourse(payload);
 
-      // add instantly
       addCourseToList({ ...course, published: false });
+
+      toast.success("Course created successfully");
 
       if (publish) {
         await adminSetCoursePublished(course._id, true);
         updateCoursePublished?.(course._id, true);
+        toast.success("Course published successfully");
       }
 
       // Reset form
@@ -112,9 +114,13 @@ const AdminCourseCreateForm = ({
       setTagInput("");
       setLevel("beginner");
 
-      setFlag(false);
+      if (onBack) onBack();
+      else if (setFlag) setFlag(false);
     } catch (e) {
-      setErr(e?.response?.data?.error || "Failed to save course.");
+      const message =
+        e?.response?.data?.error || "Something went wrong. Please try again.";
+
+      toast.error(message);
     } finally {
       setSaving(false);
     }
@@ -128,7 +134,7 @@ const AdminCourseCreateForm = ({
         </h2>
 
         <button
-          onClick={() => setFlag(false)}
+          onClick={() => (onBack ? onBack() : setFlag(false))}
           className="rounded-xl border border-slate-200 px-4 py-2 hover:bg-slate-50"
         >
           Back

@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
+
 const requireEnrollment = require("../middlewares/requireEnrollment");
+const auth = require("../middlewares/auth");
+const requireRole = require("../middlewares/requireRole");
 
 const {
   createLesson,
@@ -10,19 +13,40 @@ const {
   deleteLesson,
 } = require("../controllers/lessonController");
 
-const auth = require("../middlewares/auth");
-const requireRole = require("../middlewares/requireRole");
+// Helper: only enforce enrollment for non-admin users
+function enrollmentIfNotAdmin(opts) {
+  const mw = requireEnrollment(opts);
+  return (req, res, next) => {
+    if (req.user?.role === "admin") return next();
+    return mw(req, res, next);
+  };
+}
 
 // Admin CRUD
-router.post("/courses/:courseId/lessons", auth, requireRole("admin"), createLesson);
+router.post(
+  "/courses/:courseId/lessons",
+  auth,
+  requireRole("admin"),
+  createLesson,
+);
+
 router.patch("/lessons/:lessonId", auth, requireRole("admin"), updateLesson);
+
 router.delete("/lessons/:lessonId", auth, requireRole("admin"), deleteLesson);
 
-// Public/student views
-router.get("/courses/:courseId/lessons", auth,
-  requireEnrollment({ courseIdParam: "courseId" }),getLessonsByCourse);
+// Student/admin views
+router.get(
+  "/courses/:courseId/lessons",
+  auth,
+  enrollmentIfNotAdmin({ courseIdParam: "courseId" }),
+  getLessonsByCourse,
+);
 
-// Needs auth because later you will enforce enrollment
-router.get("/lessons/:lessonId", auth,requireEnrollment({ lessonIdParam: "lessonId" }), getLessonById);
+router.get(
+  "/lessons/:lessonId",
+  auth,
+  enrollmentIfNotAdmin({ lessonIdParam: "lessonId" }),
+  getLessonById,
+);
 
 module.exports = router;

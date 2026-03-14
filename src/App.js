@@ -7,7 +7,6 @@ import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home";
-import AdminDashboard from "./pages/AdminDashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
@@ -38,14 +37,7 @@ export default function App() {
             }
           />
 
-          <Route
-            path="/admin"
-            element={
-              <RequireRole role="admin">
-                <AdminDashboard />
-              </RequireRole>
-            }
-          />
+          
 <Route
   path="/admindashboard"
   element={
