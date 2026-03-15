@@ -19,7 +19,7 @@ const transporter = nodemailer.createTransport({
 exports.adminListUsers = async (req, res) => {
   try {
     const users = await User.find({})
-      .select("name email student_number role createdAt updatedAt")
+      .select("name email student_number role isBlocked createdAt updatedAt")
       .sort({ createdAt: -1 });
     return res.json(users);
   } catch (err) {
@@ -56,6 +56,34 @@ exports.adminUpdateUserRole = async (req, res) => {
     return res.json({ id: user._id, role: user.role });
   } catch (err) {
     return res.status(500).json({ error: "Something went wrong!" });
+  }
+};
+
+// PATCH /api/admin/users/:id/block
+exports.adminToggleUserBlock = async (req, res) => {
+  try {
+    const targetId = req.params.id;
+    const { isBlocked } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(targetId)) {
+      return res.status(400).json({ error: "Invalid user ID" });
+    }
+
+    const user = await User.findById(targetId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    // Prevent blocking admins
+    if (user.role === "admin") {
+      return res.status(400).json({ error: "Cannot block admin users" });
+    }
+
+    user.isBlocked = Boolean(isBlocked);
+    await user.save();
+
+    return res.json({ id: user._id, isBlocked: user.isBlocked });
+  } catch (err) {
+    console.error("adminToggleUserBlock error:", err);
+    return res.status(500).json({ error: err.message || "Something went wrong!" });
   }
 };
 

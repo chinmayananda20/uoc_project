@@ -162,15 +162,15 @@ const AdminContentPanel = () => {
   return (
     <div className="w-full">
       <div>
-        <h1 className="font-extrabold text-3xl text-slate-900">
+        <h1 className="font-extrabold text-3xl text-slate-900 dark:text-white tracking-tight">
           Dashboard Overview
         </h1>
-        <p className="text-slate-600 mt-2">
+        <p className="text-slate-600 dark:text-slate-400 mt-2 font-medium">
           Welcome to the dashboard. Here you can manage courses and users.
         </p>
 
         {role && (
-          <div className="mt-3 inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+          <div className="mt-3 inline-flex items-center rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-1 text-xs font-bold text-slate-700 dark:text-slate-400 uppercase tracking-widest">
             Role: {role}
           </div>
         )}
@@ -181,11 +181,11 @@ const AdminContentPanel = () => {
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-2xl p-6 bg-white shadow-sm border border-slate-200"
+              className="rounded-2xl p-6 bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800"
             >
-              <div className="h-4 w-32 rounded bg-slate-100 animate-pulse" />
-              <div className="mt-4 h-10 w-24 rounded bg-slate-100 animate-pulse" />
-              <div className="mt-6 h-3 w-40 rounded bg-slate-100 animate-pulse" />
+              <div className="h-4 w-32 rounded bg-slate-100 dark:bg-slate-800 animate-pulse" />
+              <div className="mt-4 h-10 w-24 rounded bg-slate-100 dark:bg-slate-800 animate-pulse" />
+              <div className="mt-6 h-3 w-40 rounded bg-slate-100 dark:bg-slate-800 animate-pulse" />
             </div>
           ))}
         </div>
@@ -200,8 +200,8 @@ const AdminContentPanel = () => {
               <div
                 key={title}
                 className={[
-                  "relative overflow-hidden rounded-2xl p-6 text-white shadow-md",
-                  "transition hover:scale-[1.02] hover:shadow-lg",
+                  "relative overflow-hidden rounded-2xl p-5 sm:p-6 text-white shadow-md",
+                  "transition hover:-translate-y-1 hover:shadow-xl",
                   `bg-gradient-to-br ${gradient}`,
                 ].join(" ")}
               >
@@ -237,10 +237,14 @@ const AdminContentPanel = () => {
             ))}
           </div>
 
-          {role === "admin" && <div className="mt-4">Admin User Panel</div>}
+          {role === "admin" && (
+            <div className="mt-6 py-4 border-t border-slate-100 dark:border-slate-800">
+               <span className="text-xs font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest">System Controls Active</span>
+            </div>
+          )}
           {role !== "admin" && (
             <div className="mt-6">
-              <div className="relative overflow-hidden rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-6 shadow-sm">
+              <div className="relative overflow-hidden rounded-2xl border border-amber-200 dark:border-amber-900/30 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/5 dark:to-orange-900/5 p-6 shadow-sm">
                 {/* subtle background glow */}
                 <div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-amber-200/30 blur-3xl" />
 
@@ -265,15 +269,15 @@ const AdminContentPanel = () => {
 
                   {/* content */}
                   <div>
-                    <h3 className="text-lg font-semibold text-amber-900">
+                    <h3 className="text-lg font-bold text-amber-900 dark:text-amber-500">
                       Restricted Access
                     </h3>
-                    <p className="mt-1 text-sm text-amber-800">
+                    <p className="mt-1 text-sm text-amber-800 dark:text-amber-600 font-medium">
                       You are logged in as{" "}
-                      <span className="font-medium">{role}</span>.
+                      <span className="font-black text-amber-950 dark:text-amber-400 uppercase tracking-tight">{role}</span>.
                       Administrative controls are only available to admin users.
                     </p>
-                    <p className="mt-2 text-xs text-amber-700">
+                    <p className="mt-2 text-xs text-amber-700 dark:text-amber-700 font-bold">
                       If you believe this is an error, please contact your
                       system administrator.
                     </p>

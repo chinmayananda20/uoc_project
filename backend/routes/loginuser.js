@@ -22,6 +22,11 @@ router.post("/", [
         if (!user) {
             return res.status(400).json({ error: "Please try to login with correct credentials" });
         }
+        
+        if (user.isBlocked) {
+            return res.status(403).json({ error: "Your account has been restricted. Please contact support." });
+        }
+
         const passwordCompare = await bcrypt.compare(password, user.password);
         if (!passwordCompare) {
             return res.status(400).json({ error: "Please try to login with correct credentials" });

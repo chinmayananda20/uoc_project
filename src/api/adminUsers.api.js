@@ -9,3 +9,8 @@ export async function adminSetUserRole(userId, role) {
   const res = await api.patch(`/admin/users/${userId}/role`, { role });
   return res.data;
 }
+
+export async function adminToggleUserBlock(userId, isBlocked) {
+  const res = await api.patch(`/admin/users/${userId}/block`, { isBlocked });
+  return res.data;
+}

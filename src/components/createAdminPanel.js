@@ -33,23 +33,23 @@ function CreateAdminPanel() {
         alt="Add Admin Illustration"
         className="w-1/2 max-w-md hidden md:block"
       />
-      <div className=" max-w-lg  md:max-w-xl rounded-2xl border  border-gray-200 p-6 md:p-8 shadow-sm">
-        <h3 className="text-3xl font-semibold text-gray-800 mb-4">
-          Create Admin{" "}
+      <div className="w-full max-w-lg md:max-w-xl rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 md:p-10 shadow-xl shadow-slate-200/50 dark:shadow-none transition-colors">
+        <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-3">
+          Create Admin
         </h3>
-        <p className="text-sm text-gray-500 mb-6">
+        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-8">
           An email with a password reset link will be sent to the new admin.
         </p>
         {err && <p className="text-red-500">{err}</p>}
         {msg && <p className="text-green-500">{msg}</p>}
 
         <form className="space-y-4" onSubmit={submit}>
-          <div style={{ display: "grid", gap: 10, maxWidth: 420 }}>
+          <div className="grid gap-4 w-full max-w-sm mx-auto p-2">
             <div>
-              <label>Name</label>
+              <label className="block text-sm font-bold mb-2 text-slate-700 dark:text-slate-300">Full Name</label>
               <input
-                style={{ width: "100%", padding: 8 }}
-                className="w-full rounded-xl border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                className="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-5 py-3.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition shadow-sm font-medium"
+                placeholder="Enter admin name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -57,11 +57,11 @@ function CreateAdminPanel() {
             </div>
 
             <div>
-              <label>Email</label>
+              <label className="block text-sm font-bold mb-2 text-slate-700 dark:text-slate-300">Email Address</label>
               <input
-                style={{ width: "100%", padding: 8 }}
                 type="email"
-                className="w-full rounded-xl border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                className="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-5 py-3.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition shadow-sm font-medium"
+                placeholder="email@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -71,9 +71,9 @@ function CreateAdminPanel() {
             <button
               disabled={loading}
               type="submit"
-              className={` m-5 rounded-xl py-2.5 font-medium hover:bg-blue-700 bg-blue-500 text-white transition`}
+              className="mt-6 w-full rounded-2xl py-4 font-black text-white bg-blue-600 hover:bg-blue-700 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/20 disabled:opacity-70 uppercase tracking-wide"
             >
-              {loading ? "Creating..." : "Create Admin "}
+              {loading ? "Creating..." : "Create Admin Account"}
             </button>
           </div>
         </form>

@@ -117,7 +117,7 @@ function ElementEditor({ el, onChange }) {
       <input
         value={el.data?.text || ""}
         onChange={(e) => onChange({ text: e.target.value })}
-        className="w-full rounded-xl border border-slate-300 px-4 py-2.5"
+        className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all font-medium"
         placeholder={el.type === "heading" ? "Heading..." : "Subheading..."}
       />
     );
@@ -129,7 +129,7 @@ function ElementEditor({ el, onChange }) {
         rows={5}
         value={el.data?.text || ""}
         onChange={(e) => onChange({ text: e.target.value })}
-        className="w-full resize-none rounded-xl border border-slate-300 px-4 py-2.5"
+        className="w-full resize-none rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all font-medium"
         placeholder="Text..."
       />
     );
@@ -149,7 +149,7 @@ function ElementEditor({ el, onChange }) {
               .filter(Boolean),
           })
         }
-        className="w-full resize-none rounded-xl border border-slate-300 px-4 py-2.5"
+        className="w-full resize-none rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all font-medium"
         placeholder="One bullet per line"
       />
     );
@@ -165,29 +165,29 @@ function ElementEditor({ el, onChange }) {
           <input
             value={url}
             onChange={(e) => onChange({ url: e.target.value })}
-            className="w-full rounded-xl border border-slate-300 px-4 py-2.5"
+            className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
             placeholder="Image URL..."
           />
           <input
             value={alt}
             onChange={(e) => onChange({ alt: e.target.value })}
-            className="w-full rounded-xl border border-slate-300 px-4 py-2.5"
+            className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
             placeholder="Alt text..."
           />
         </div>
 
         {String(url).trim() ? (
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-            <div className="text-xs font-semibold text-slate-600">Preview</div>
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-3 shadow-inner">
+            <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Preview</div>
             <img
               src={String(url).trim()}
               alt={alt || "Slide image"}
-              className="mt-2 max-h-48 w-full object-contain rounded-lg border border-slate-200 bg-white"
+              className="mt-2 max-h-48 w-full object-contain rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
               }}
             />
-            <div className="mt-2 text-xs text-slate-500">
+            <div className="mt-2 text-[10px] font-bold text-slate-500 dark:text-slate-600 italic">
               If it doesn’t show, the URL is invalid or blocked.
             </div>
           </div>
@@ -532,8 +532,8 @@ export default function AdminLessonsManager({ courseId }) {
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-900">Lessons Manager</h2>
-          <p className="mt-1 text-sm text-slate-600">
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">Lessons Manager</h2>
+          <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-400">
             Create lessons and build slide-based content.
           </p>
         </div>
@@ -541,16 +541,16 @@ export default function AdminLessonsManager({ courseId }) {
         {view === "list" ? (
           <button
             onClick={openCreate}
-            className="rounded-xl bg-blue-600 px-4 py-2 text-white font-semibold hover:bg-blue-700"
+            className="rounded-xl bg-blue-600 px-5 py-2.5 text-white font-black text-xs uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
           >
             + New Lesson
           </button>
         ) : (
           <button
             onClick={backToList}
-            className="rounded-xl border border-slate-200 px-4 py-2 font-semibold text-slate-700 hover:bg-slate-50"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-2 font-bold text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
           >
-            Back
+            Back to List
           </button>
         )}
       </div>
@@ -573,23 +573,23 @@ export default function AdminLessonsManager({ courseId }) {
               {sortedLessons.map((l) => (
                 <div
                   key={l._id}
-                  className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition"
+                  className="rounded-3xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all p-6"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                        <span className="rounded-full bg-slate-50 dark:bg-slate-800 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-700">
                           Order {l.order}
                         </span>
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                        <span className="rounded-full bg-slate-50 dark:bg-slate-800 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-700">
                           {l.estimatedTime} min
                         </span>
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                        <span className="rounded-full bg-slate-50 dark:bg-slate-800 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-700">
                           {Number(l.slidesCount || 0)} slides
                         </span>
                       </div>
 
-                      <h3 className="mt-3 truncate text-lg font-extrabold text-slate-900">
+                      <h3 className="mt-4 truncate text-xl font-black text-slate-900 dark:text-white tracking-tight">
                         {l.title}
                       </h3>
 
@@ -604,13 +604,13 @@ export default function AdminLessonsManager({ courseId }) {
                     <div className="flex flex-col gap-2">
                       <button
                         onClick={() => openEdit(l)}
-                        className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                        className="rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => deleteLesson(l._id)}
-                        className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100"
+                        className="rounded-xl border border-red-200 dark:border-red-900/30 bg-red-50 dark:bg-red-900/10 px-4 py-2 text-xs font-black uppercase tracking-widest text-red-600 dark:text-red-400 hover:bg-red-100 transition-all active:scale-95"
                       >
                         Delete
                       </button>
@@ -630,58 +630,58 @@ export default function AdminLessonsManager({ courseId }) {
         </div>
       ) : (
         /* EDITOR VIEW */
-        <div className="mt-6 grid grid-cols-12 gap-6">
-          {/* Left */}
-          <div className="col-span-12 lg:col-span-4">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h3 className="text-lg font-extrabold text-slate-900">Lesson Details</h3>
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left Panel */}
+          <div className="lg:col-span-4 h-fit sticky top-24">
+            <div className="rounded-[2rem] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xl shadow-slate-200/50 dark:shadow-none">
+              <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight mb-6">Lesson Settings</h3>
 
-              <div className="mt-4">
-                <label className="text-sm font-semibold text-slate-700">Title *</label>
-                <input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
-                  placeholder="Lesson title"
-                />
-              </div>
-
-              <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-semibold text-slate-700">Order *</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Title</label>
+                  <input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="mt-2 w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 py-3.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium transition-all"
+                    placeholder="Lesson title"
+                  />
+                </div>
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Order</label>
                   <input
                     type="number"
                     value={order}
                     onChange={(e) => setOrder(e.target.value)}
-                    className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+                    className="mt-2 w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 py-3.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium transition-all text-center"
                     min={1}
                   />
                 </div>
-
+ 
                 <div>
-                  <label className="text-sm font-semibold text-slate-700">
-                    Time (min) *
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                    Mins
                   </label>
                   <input
                     type="number"
                     value={estimatedTime}
                     onChange={(e) => setEstimatedTime(e.target.value)}
-                    className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+                    className="mt-2 w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 py-3.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium transition-all text-center"
                     min={1}
                     max={30}
                   />
                 </div>
               </div>
+              </div>
 
               <div className="mt-5 rounded-xl bg-slate-50 p-3 text-sm text-slate-700">
                 Slides: <span className="font-bold">{slides.length}</span>
               </div>
-
-              <div className="mt-5 flex gap-3">
+              <div className="mt-8 flex flex-col gap-3">
                 <button
                   onClick={saveLesson}
                   disabled={!canSave}
-                  className="flex-1 rounded-xl bg-blue-600 px-4 py-2.5 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="w-full rounded-2xl bg-blue-600 px-6 py-4 font-black text-white hover:bg-blue-700 shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] disabled:opacity-50 uppercase tracking-widest text-xs"
                 >
                   {saving
                     ? "Saving..."
@@ -689,10 +689,10 @@ export default function AdminLessonsManager({ courseId }) {
                       ? "Update Lesson"
                       : "Create Lesson"}
                 </button>
-
+ 
                 <button
                   onClick={backToList}
-                  className="rounded-xl border border-slate-200 px-4 py-2.5 font-semibold text-slate-700 hover:bg-slate-50"
+                  className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 px-6 py-4 font-black text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all active:scale-[0.98] uppercase tracking-widest text-xs"
                 >
                   Cancel
                 </button>
@@ -701,18 +701,19 @@ export default function AdminLessonsManager({ courseId }) {
 
             <button
               onClick={addSlide}
-              className="mt-4 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 font-semibold text-slate-800 hover:bg-slate-50"
+              className="mt-4 w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-4 font-black text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-xl shadow-slate-200/20 dark:shadow-none active:scale-[0.98] uppercase tracking-widest text-xs"
             >
               + Add Slide
             </button>
           </div>
 
-          {/* Right */}
-          <div className="col-span-12 lg:col-span-8">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h3 className="text-lg font-extrabold text-slate-900">Slides</h3>
-              <p className="mt-1 text-sm text-slate-600">
-                Add multiple headings/subheadings/text blocks/images and reorder them.
+          {/* Right Panel: Slides List */}
+          <div className="lg:col-span-8">
+            <div className="rounded-[2rem] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 shadow-sm">
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Slide Deck</h3>
+              <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400 max-w-lg leading-relaxed">
+                Add content elements like headings, text, and images to each slide. 
+                Reorder slides using the sidebar controls.
               </p>
 
               <div className="mt-5 space-y-3">
@@ -730,62 +731,64 @@ export default function AdminLessonsManager({ courseId }) {
                   return (
                     <div
                       key={`slide-${idx}`}
-                      className="rounded-2xl border border-slate-200 overflow-hidden"
+                      className="rounded-3xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm"
                     >
                       <button
                         type="button"
                         onClick={() => setOpenSlideIndex(open ? -1 : idx)}
-                        className="w-full flex items-center justify-between gap-3 bg-slate-50 px-4 py-3 text-left"
+                        className={`w-full flex items-center justify-between gap-3 px-6 py-5 text-left transition-colors ${open ? 'bg-blue-600' : 'bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                       >
                         <div className="min-w-0">
-                          <div className="text-xs text-slate-500">Slide {idx + 1}</div>
-                          <div className="truncate font-extrabold text-slate-900">
+                          <div className={`text-[10px] font-black uppercase tracking-[0.2em] mb-1 ${open ? 'text-blue-200' : 'text-slate-400 dark:text-slate-500'}`}>Slide 0{idx + 1}</div>
+                          <div className={`truncate text-lg font-black tracking-tight ${open ? 'text-white' : 'text-slate-900 dark:text-slate-100'}`}>
                             {slideTitle}
                           </div>
                         </div>
-                        <span className="text-xs font-semibold text-slate-500">
-                          {open ? "Hide" : "Edit"}
+                        <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border transition-all ${open ? 'bg-white/20 border-white/30 text-white' : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'}`}>
+                          {open ? "Close Editor" : "Edit Slide"}
                         </span>
                       </button>
 
                       {open ? (
-                        <div className="p-4 space-y-4">
+                        <div className="p-6 space-y-8 bg-white dark:bg-slate-900/50 animate-in fade-in slide-in-from-top-4 duration-300">
                           <div>
-                            <label className="text-sm font-semibold text-slate-700">
-                              Slide label (optional)
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 block mb-2">
+                              Slide internal label (optional)
                             </label>
                             <input
                               value={s.label || ""}
                               onChange={(e) => updateSlide(idx, { label: e.target.value })}
-                              className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
-                              placeholder="Internal label"
+                              className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 py-3.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium transition-all"
+                              placeholder="e.g. Intro Concept 1"
                             />
                           </div>
 
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-sm font-semibold text-slate-700">
-                              Add element:
+                          <div>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 block mb-3">
+                              Insert Elements
                             </span>
-                            {ELEMENT_TYPES.map((t) => (
-                              <button
-                                key={t}
-                                type="button"
-                                onClick={() => addElement(idx, t)}
-                                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-                              >
-                                + {t}
-                              </button>
-                            ))}
+                            <div className="flex flex-wrap items-center gap-2">
+                              {ELEMENT_TYPES.map((t) => (
+                                <button
+                                  key={t}
+                                  type="button"
+                                  onClick={() => addElement(idx, t)}
+                                  className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-300 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all active:scale-95"
+                                >
+                                  + {t}
+                                </button>
+                              ))}
+                            </div>
                           </div>
 
-                          <div className="space-y-3">
+                          <div className="space-y-4">
                             {(slides[idx]?.elements || []).map((el) => (
                               <div
                                 key={el.uid}
-                                className="rounded-2xl border border-slate-200 p-3"
+                                className="rounded-[1.5rem] border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 p-5 group transition-colors"
                               >
-                                <div className="mb-2 flex items-center justify-between">
-                                  <div className="text-xs font-extrabold uppercase text-slate-600">
+                                <div className="mb-4 flex items-center justify-between">
+                                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700">
                                     {el.type}
                                   </div>
 
@@ -848,7 +851,7 @@ export default function AdminLessonsManager({ courseId }) {
 
               <button
                 onClick={addSlide}
-                className="mt-5 w-full rounded-xl bg-slate-900 px-4 py-2.5 font-semibold text-white hover:bg-slate-950"
+                className="mt-5 w-full rounded-xl bg-slate-900 px-4 py-2.5 font-semibold text-white hover:bg-slate-800 transition active:scale-[0.98] shadow-sm"
               >
                 + Add Another Slide
               </button>

@@ -20,6 +20,8 @@ const UserSchema = new mongoose.Schema(
 
     resetPasswordTokenHash: { type: String },
     resetPasswordExpires: { type: Date },
+
+    isBlocked: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

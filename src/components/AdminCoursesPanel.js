@@ -338,7 +338,7 @@ const AdminCoursesPanel = () => {
         : `Level: ${course?.level || "—"}`;
 
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-lg">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm transition hover:shadow-lg">
         {/* Status strip */}
         <div
           className={[
@@ -352,7 +352,7 @@ const AdminCoursesPanel = () => {
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h4 className="truncate text-lg font-extrabold text-slate-900">
+                <h4 className="truncate text-lg font-extrabold text-slate-900 dark:text-white">
                   {course?.title || "Untitled course"}
                 </h4>
 
@@ -366,7 +366,7 @@ const AdminCoursesPanel = () => {
                 </span>
               </div>
 
-              <p className="mt-2 line-clamp-2 text-sm text-slate-600">
+              <p className="mt-2 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
                 {course?.description || "No description"}
               </p>
             </div>
@@ -447,7 +447,7 @@ const AdminCoursesPanel = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <div className="flex flex-wrap items-center gap-2 mt-2">
                 {/* Preview */}
                 <button
                   type="button"
@@ -462,7 +462,7 @@ const AdminCoursesPanel = () => {
                 <button
                   type="button"
                   onClick={() => onManage?.(course)}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50 min-w-fit"
                 >
                   <HiOutlineBookOpen className="h-5 w-5" />
                   Manage
@@ -496,7 +496,7 @@ const AdminCoursesPanel = () => {
                     type="button"
                     onClick={() => setConfirmDeleteCourse(course)}
                     disabled={deletingCourseId === course._id}
-                    className="col-span-2 sm:col-span-4 inline-flex items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100 disabled:opacity-60"
+                    className="flex-1 w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100 disabled:opacity-60 min-w-fit"
                     title="Delete draft"
                   >
                     <HiOutlineTrash className="h-5 w-5" />
@@ -519,10 +519,10 @@ const AdminCoursesPanel = () => {
         <div className="w-full">
           <div className="flex items-end justify-between gap-3">
             <div>
-              <h2 className="text-2xl font-extrabold text-slate-900">
+              <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">
                 Courses Overview
               </h2>
-              <p className="mt-1 text-slate-600">
+              <p className="mt-1 text-slate-600 dark:text-slate-400">
                 Summary of all courses and who created them.
               </p>
             </div>
@@ -537,7 +537,7 @@ const AdminCoursesPanel = () => {
       value={search}
       onChange={(e) => setSearch(e.target.value)}
       placeholder="Search by title, description, tags, level, or creator..."
-      className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+      className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500/40 text-slate-900 dark:text-white"
     />
 
     {search && (
@@ -597,11 +597,11 @@ const AdminCoursesPanel = () => {
               draft={stats.otherDraft}
             />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mt-10">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white mt-10">
             Course Actions
           </h1>
           <div
-            className="rounded-xl mt-7 mb-14 flex items-center justify-around bg-blue-600 text-white w-[400px] coursor-pointer transition
+            className="rounded-xl mt-7 mb-14 flex items-center justify-around bg-blue-600 text-white w-full sm:w-[400px] cursor-pointer transition
     hover:-translate-y-0.5 hover:shadow-md hover:border-slate-300
     active:translate-y-0 active:shadow-sm
     focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
@@ -626,10 +626,10 @@ const AdminCoursesPanel = () => {
             <section>
               <div className="flex items-end justify-between gap-3">
                 <div>
-                  <h3 className="text-xl font-extrabold text-slate-900">
+                  <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">
                     Your Published Courses
                   </h3>
-                  <p className="mt-1 text-sm text-slate-600">
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                     Edit or unpublish your live courses.
                   </p>
                 </div>
@@ -663,10 +663,10 @@ const AdminCoursesPanel = () => {
             <section>
               <div className="flex items-end justify-between gap-3">
                 <div>
-                  <h3 className="text-xl font-extrabold text-slate-900">
+                  <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">
                     Your Draft Courses
                   </h3>
-                  <p className="mt-1 text-sm text-slate-600">
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                     Finish and publish your drafts.
                   </p>
                 </div>
@@ -700,10 +700,10 @@ const AdminCoursesPanel = () => {
             <section>
               <div className="flex items-end justify-between gap-3">
                 <div>
-                  <h3 className="text-xl font-extrabold text-slate-900">
+                  <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">
                     Published Courses by Other Admins
                   </h3>
-                  <p className="mt-1 text-sm text-slate-600">
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                     Browse courses published by others.
                   </p>
                 </div>
