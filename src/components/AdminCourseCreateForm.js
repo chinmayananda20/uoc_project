@@ -20,6 +20,7 @@ const AdminCourseCreateForm = ({
   const [level, setLevel] = useState("beginner");
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState([]);
+  const [bannerImage, setBannerImage] = useState("");
 
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
@@ -49,6 +50,7 @@ const AdminCourseCreateForm = ({
     setDescription(editingCourse.description || "");
     setLevel(editingCourse.level || "beginner");
     setTags(Array.isArray(editingCourse.tags) ? editingCourse.tags : []);
+    setBannerImage(editingCourse.bannerImage || "");
     setTagInput("");
   }, [editingCourse]);
 
@@ -69,6 +71,7 @@ const AdminCourseCreateForm = ({
       description: description.trim(),
       level,
       tags,
+      bannerImage: bannerImage.trim(),
     };
 
     try {
@@ -113,6 +116,7 @@ const AdminCourseCreateForm = ({
       setTags([]);
       setTagInput("");
       setLevel("beginner");
+      setBannerImage("");
 
       if (onBack) onBack();
       else if (setFlag) setFlag(false);
@@ -173,6 +177,31 @@ const AdminCourseCreateForm = ({
             className="mt-2 w-full resize-none rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/40 focus:outline-none focus:border-blue-500 transition-all font-medium"
             placeholder="Course description"
           />
+        </div>
+
+        {/* Banner Image */}
+        <div className="mt-5">
+          <label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+            Banner Image URL
+          </label>
+          <input
+            value={bannerImage}
+            onChange={(e) => setBannerImage(e.target.value)}
+            className="mt-2 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/40 focus:outline-none focus:border-blue-500 transition-all font-medium"
+            placeholder="https://example.com/image.jpg"
+          />
+          {bannerImage && (
+            <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800">
+              <img 
+                src={bannerImage} 
+                alt="Banner Preview" 
+                className="h-40 w-full object-cover"
+                onError={(e) => {
+                  e.target.src = "https://via.placeholder.com/800x400?text=Invalid+Image+URL";
+                }}
+              />
+            </div>
+          )}
         </div>
 
         {/* Level */}

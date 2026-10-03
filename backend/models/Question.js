@@ -51,6 +51,11 @@ const QuestionSchema = new mongoose.Schema(
       maxlength: 5000,
     },
 
+    // Adaptive learning fields
+    topic: { type: String, required: false, trim: true, maxlength: 80 },
+    subtopic: { type: String, required: false, trim: true, maxlength: 80 },
+    difficultyLevel: { type: String, enum: ["easy", "medium", "hard"], default: "medium" },
+    // Preserve existing fields for backward compatibility
     topicTag: {
       type: String,
       required: true,
@@ -58,12 +63,11 @@ const QuestionSchema = new mongoose.Schema(
       index: true,
       maxlength: 80,
     },
+    difficulty: { type: Number, required: true, min: 1, max: 5, index: true },
 
-    difficulty: {
-      type: Number,
-      required: true,
-      min: 1,
-      max: 5,
+    published: {
+      type: Boolean,
+      default: true,
       index: true,
     },
 
@@ -71,12 +75,6 @@ const QuestionSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 1,
-    },
-
-    published: {
-      type: Boolean,
-      default: true,
-      index: true,
     },
   },
   { timestamps: true }

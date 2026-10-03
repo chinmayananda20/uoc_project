@@ -4,7 +4,7 @@ const getUserId = (req) => req.user?.id || req.user?._id;
 
 exports.createCourse = async (req, res) => {
   try {
-    const { title, description, tags, level } = req.body || {};
+    const { title, description, tags, level, bannerImage } = req.body || {};
 
     if (!title || !description || !level) {
       return res
@@ -17,6 +17,7 @@ exports.createCourse = async (req, res) => {
       description: String(description).trim(),
       tags: Array.isArray(tags) ? tags : [],
       level,
+      bannerImage: bannerImage || "",
       createdBy: getUserId(req),
     });
 
@@ -30,7 +31,8 @@ exports.createCourse = async (req, res) => {
 exports.getCourses = async (req, res) => {
   try {
     const courses = await Course.find({ published: true })
-      .select("title description level tags createdBy")
+      .populate("createdBy", "name")
+      .select("title description level tags bannerImage createdBy createdAt")
       .sort({ createdAt: -1 });
 
     return res.json(courses);
@@ -42,7 +44,7 @@ exports.getCourses = async (req, res) => {
 // Public: published only; Admin: can view drafts too
 exports.getCourseById = async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id);
+    const course = await Course.findById(req.params.id).populate("createdBy", "name");
     if (!course) return res.status(404).json({ message: "Course not found" });
 
     if (course.published) return res.json(course);
@@ -59,7 +61,7 @@ exports.getCourseById = async (req, res) => {
 // Admin: update course fields (draft or published)
 exports.updateCourse = async (req, res) => {
   try {
-    const { title, description, tags, level } = req.body || {};
+    const { title, description, tags, level, bannerImage } = req.body || {};
 
     const course = await Course.findById(req.params.id);
     if (!course) return res.status(404).json({ message: "Course not found" });
@@ -68,6 +70,7 @@ exports.updateCourse = async (req, res) => {
     if (description !== undefined) course.description = String(description).trim();
     if (tags !== undefined) course.tags = Array.isArray(tags) ? tags : [];
     if (level !== undefined) course.level = level;
+    if (bannerImage !== undefined) course.bannerImage = bannerImage;
 
     await course.save();
     return res.json(course);
@@ -98,7 +101,7 @@ exports.setCoursePublished = async (req, res) => {
 exports.getAllCoursesAdmin = async (req, res) => {
   try {
     const courses = await Course.find({})
-      .select("title description level tags published createdAt createdBy")
+      .select("title description level tags bannerImage published createdAt createdBy")
       .sort({ createdAt: -1 });
 
     return res.json(courses);

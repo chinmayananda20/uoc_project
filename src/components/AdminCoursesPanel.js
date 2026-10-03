@@ -203,59 +203,48 @@ const AdminCoursesPanel = () => {
     title,
     subtitle,
     icon: Icon,
-    gradient,
     total,
     published,
     draft,
   }) => (
     <div
-      className={[
-        "relative overflow-hidden rounded-2xl p-6 text-white shadow-md",
-        "transition hover:scale-[1.02] hover:shadow-lg",
-        `bg-gradient-to-br ${gradient}`,
-      ].join(" ")}
+      className="relative overflow-hidden rounded-2xl p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between"
     >
-      <div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
-      <div className="pointer-events-none absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-white/5 blur-2xl" />
-
       <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-sm opacity-85">{title}</p>
-          <h2 className="mt-2 text-4xl font-extrabold tracking-tight">
+        <div className="space-y-1">
+          <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{title}</span>
+          <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-1">
             {loading ? (
-              <span className="inline-block h-10 w-24 rounded-xl bg-white/20 animate-pulse" />
+              <span className="inline-block h-8 w-16 bg-slate-100 dark:bg-slate-850 animate-pulse rounded" />
             ) : (
               total
             )}
           </h2>
-          <p className="mt-2 text-sm opacity-80">{subtitle}</p>
         </div>
-
-        <div className="shrink-0 rounded-2xl bg-white/15 p-3">
-          <Icon className="h-8 w-8" />
+        <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400">
+          <Icon className="w-5 h-5" />
         </div>
       </div>
-
-      <div className="mt-6 grid grid-cols-2 gap-3">
-        <div className="rounded-xl bg-white/10 p-3">
-          <p className="text-xs opacity-80">Published</p>
-          <p className="mt-1 text-lg font-bold">
+      <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-4">
+        <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-100 dark:border-slate-850">
+          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Published</span>
+          <span className="text-lg font-black text-emerald-600 mt-1 block">
             {loading ? (
-              <span className="inline-block h-6 w-12 rounded bg-white/20 animate-pulse" />
+              <span className="inline-block h-5 w-8 bg-slate-100 dark:bg-slate-850 animate-pulse rounded" />
             ) : (
               published
             )}
-          </p>
+          </span>
         </div>
-        <div className="rounded-xl bg-white/10 p-3">
-          <p className="text-xs opacity-80">Draft</p>
-          <p className="mt-1 text-lg font-bold">
+        <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-100 dark:border-slate-850">
+          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Drafts</span>
+          <span className="text-lg font-black text-amber-500 mt-1 block">
             {loading ? (
-              <span className="inline-block h-6 w-12 rounded bg-white/20 animate-pulse" />
+              <span className="inline-block h-5 w-8 bg-slate-100 dark:bg-slate-850 animate-pulse rounded" />
             ) : (
               draft
             )}
-          </p>
+          </span>
         </div>
       </div>
     </div>

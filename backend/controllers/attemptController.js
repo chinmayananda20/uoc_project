@@ -1,22 +1,26 @@
 const mongoose = require("mongoose");
-
 const QuizAttempt = require("../models/QuizAttempt");
 const QuestionAttempt = require("../models/QuestionAttempt");
-
 const Quiz = require("../models/Quiz");
 const Question = require("../models/Question");
 const Lesson = require("../models/Lesson");
 const Course = require("../models/Course");
 const LessonProgress = require("../models/LessonProgress");
 const Enrollment = require("../models/Enrollment");
+// New imports for ML prediction
+const mlPredictionService = require("../services/mlPredictionService");
+const PerformanceAnalysis = require("../models/PerformanceAnalysis");
+
+
+
+
 
 const getUserId = (req) => req.user?.id || req.user?._id;
 
 function normalizeAnswer(val) {
-  // supports string or array; sorts arrays for comparison
-  if (Array.isArray(val)) return val.map(String).sort();
+  if (Array.isArray(val)) return val.map(String).map(s => s.trim().toLowerCase()).sort();
   if (val === null || val === undefined) return null;
-  return String(val);
+  return String(val).trim().toLowerCase();
 }
 
 function isAnswerCorrect(correctAnswer, selectedAnswer) {
@@ -25,7 +29,6 @@ function isAnswerCorrect(correctAnswer, selectedAnswer) {
 
   if (a === null || b === null) return false;
 
-  // array compare
   if (Array.isArray(a) && Array.isArray(b)) {
     if (a.length !== b.length) return false;
     for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
@@ -33,6 +36,35 @@ function isAnswerCorrect(correctAnswer, selectedAnswer) {
   }
 
   return a === b;
+}
+
+function decideAdaptiveProgression({ scorePercent, weakTopics }) {
+  if (scorePercent < 50) {
+    return {
+      learningState: "very_weak",
+      actionType: "revisit_lesson",
+      unlockNextLesson: false,
+      practiceRequired: false,
+      summaryRecommended: true
+    };
+  } else if (scorePercent >= 80 && weakTopics.length === 0) {
+    return {
+      learningState: "strong",
+      actionType: "optional_challenge",
+      unlockNextLesson: true,
+      practiceRequired: false,
+      summaryRecommended: false
+    };
+  } else {
+    // moderate performance
+    return {
+      learningState: "moderate",
+      actionType: "summary_then_practice",
+      unlockNextLesson: false,
+      practiceRequired: true,
+      summaryRecommended: true
+    };
+  }
 }
 
 // POST /api/quizzes/:quizId/attempts/start  (student/admin)
@@ -54,12 +86,10 @@ exports.startQuizAttempt = async (req, res) => {
     const course = await Course.findById(lesson.courseId).select("published");
     if (!course) return res.status(404).json({ message: "Quiz not found" });
 
-    // students can only attempt if course is published
     if (req.user.role !== "admin" && !course.published) {
       return res.status(404).json({ message: "Quiz not found" });
     }
 
-    // OPTIONAL (recommended): require enrollment for students
     if (req.user.role !== "admin") {
       const enr = await Enrollment.findOne({ userId, courseId: lesson.courseId });
       if (!enr || enr.status !== "enrolled") {
@@ -77,7 +107,7 @@ exports.startQuizAttempt = async (req, res) => {
       courseId: lesson.courseId,
       lessonId: quiz.lessonId,
       quizId: quiz._id,
-      quizVersion: quiz.version,
+      quizVersion: quiz.version || 1,
       totalQuestions,
       startedAt: new Date(),
     });
@@ -95,7 +125,6 @@ exports.startQuizAttempt = async (req, res) => {
 };
 
 // POST /api/quiz-attempts/:attemptId/questions/:questionId/answer
-// Body: { selectedAnswer, timeSpentMs, attemptNo?, hintUsed? }
 exports.answerQuestion = async (req, res) => {
   try {
     const userId = getUserId(req);
@@ -109,7 +138,6 @@ exports.answerQuestion = async (req, res) => {
     const attempt = await QuizAttempt.findById(attemptId);
     if (!attempt) return res.status(404).json({ message: "Attempt not found" });
 
-    // only owner (or admin) can answer
     if (req.user.role !== "admin" && attempt.userId.toString() !== userId.toString()) {
       return res.status(403).json({ message: "Forbidden" });
     }
@@ -123,24 +151,30 @@ exports.answerQuestion = async (req, res) => {
     );
     if (!question) return res.status(404).json({ message: "Question not found" });
 
-    // ensure question belongs to this quiz attempt
     if (question.quizId.toString() !== attempt.quizId.toString()) {
       return res.status(400).json({ message: "Question does not belong to this quiz" });
     }
 
     const computedIsCorrect = isAnswerCorrect(question.correctAnswer, selectedAnswer);
 
-    const doc = await QuestionAttempt.create({
-      quizAttemptId: attempt._id,
-      questionId: question._id,
-      topicTag: question.topicTag,
-      difficulty: question.difficulty,
-      selectedAnswer: selectedAnswer ?? null,
-      isCorrect: computedIsCorrect,
-      timeSpentMs: Number(timeSpentMs || 0),
-      attemptNo: Number(attemptNo || 1),
-      hintUsed: Boolean(hintUsed || false),
-    });
+    const doc = await QuestionAttempt.findOneAndUpdate(
+      {
+        quizAttemptId: attempt._id,
+        questionId: question._id,
+        attemptNo: Number(attemptNo || 1),
+      },
+      {
+        $set: {
+          topicTag: question.topicTag,
+          difficulty: question.difficulty,
+          selectedAnswer: selectedAnswer ?? null,
+          isCorrect: computedIsCorrect,
+          timeSpentMs: Number(timeSpentMs || 0),
+          hintUsed: Boolean(hintUsed || false),
+        }
+      },
+      { new: true, upsert: true }
+    );
 
     return res.status(201).json({
       questionAttemptId: doc._id,
@@ -184,23 +218,27 @@ exports.submitQuizAttempt = async (req, res) => {
       if (!latestByQuestion.has(key)) latestByQuestion.set(key, qa);
     }
 
-    const answeredCount = latestByQuestion.size;
-    // If they submit without answering everything, you decide policy.
-    // MVP: allow submit; unanswered count as incorrect.
-    const totalQuestions = attempt.totalQuestions;
+    // fetch all questions for this quiz to account for unanswered ones
+    const allQuestions = await Question.find({ quizId: attempt.quizId }).select('topicTag');
 
     let correctCount = 0;
-    const topicStats = new Map(); // topic -> {wrong, total}
+    const topicStats = new Map(); // topic -> { wrong, total }
 
-    for (const qa of latestByQuestion.values()) {
-      if (qa.isCorrect) correctCount += 1;
+    for (const q of allQuestions) {
+      const qId = q._id.toString();
+      const qa = latestByQuestion.get(qId);
+      const isCorrect = qa?.isCorrect ?? false; // unanswered counts as incorrect
+      if (isCorrect) correctCount += 1;
 
-      const topic = qa.topicTag || "unknown";
+      const topic = q.topicTag || 'unknown';
       const prev = topicStats.get(topic) || { wrong: 0, total: 0 };
       prev.total += 1;
-      if (!qa.isCorrect) prev.wrong += 1;
+      if (!isCorrect) prev.wrong += 1;
       topicStats.set(topic, prev);
     }
+
+    const answeredCount = latestByQuestion.size;
+    const totalQuestions = attempt.totalQuestions;
 
     const scorePercent = Math.round((correctCount / totalQuestions) * 100);
 
@@ -210,7 +248,7 @@ exports.submitQuizAttempt = async (req, res) => {
       if (st.total > 0 && st.wrong / st.total >= 0.5) weakTopics.push(topic);
     }
 
-    // mastery rule-based (fast + defensible)
+// mastery rule-based (fast + defensible)
     let masteryLevel = "low";
     if (scorePercent >= 80) masteryLevel = "high";
     else if (scorePercent >= 50) masteryLevel = "medium";
@@ -229,14 +267,61 @@ exports.submitQuizAttempt = async (req, res) => {
 
     await attempt.save();
 
-    // Update lesson progress + enrollment unlock for students
-    // Rule: if passed => mark lesson completed (if not already)
-    const quiz = await Quiz.findById(attempt.quizId).select("passPercent");
-    const passed = scorePercent >= (quiz?.passPercent ?? 70);
+    // Adaptive progression logic
+    const progression = decideAdaptiveProgression({ scorePercent, weakTopics });
 
+    // ---- ML Prediction ----
+    let mlResult = null;
+    try {
+      const easyWrong = qAttempts.filter(qa => qa.difficulty === 'easy' && !qa.isCorrect).length;
+      const mediumWrong = qAttempts.filter(qa => qa.difficulty === 'medium' && !qa.isCorrect).length;
+      const hardWrong = qAttempts.filter(qa => qa.difficulty === 'hard' && !qa.isCorrect).length;
+
+      const mlFeatures = {
+        scorePercent,
+        correctCount,
+        totalQuestions,
+        weakTopicCount: weakTopics.length,
+        totalTimeSec,
+        practiceRequired: progression.practiceRequired,
+        easyWrong,
+        mediumWrong,
+        hardWrong,
+        practiceScorePercent: 0,
+        practiceCompleted: false,
+        attemptNumber: 1
+      };
+      mlResult = await mlPredictionService.predictPerformance(mlFeatures);
+    } catch (e) {
+      console.error("ML prediction failed:", e.message || e);
+    }
+
+    // Store analysis record
+    try {
+      await PerformanceAnalysis.create({
+        userId,
+        courseId: attempt.courseId,
+        lessonId: attempt.lessonId,
+        quizId: attempt.quizId,
+        quizAttemptId: attempt._id,
+        scorePercent,
+        weakTopics,
+        learningState: progression.learningState,
+        ruleBasedAction: progression.actionType,
+        mlPredictedMastery: mlResult?.predictedMastery,
+        mlRiskLevel: mlResult?.riskLevel,
+        mlRecommendedAction: mlResult?.recommendedAction,
+        mlConfidence: mlResult?.confidence,
+        source: mlResult ? "ml" : "rule_based_fallback"
+      });
+    } catch (e) {
+      console.error("Failed to save PerformanceAnalysis:", e.message || e);
+    }
+
+    // Update lesson progress + enrollment unlock for students
     if (req.user.role !== "admin") {
-      // mark lesson completed if passed
-      if (passed) {
+      // mark lesson completed only if unlockNextLesson is true
+      if (progression.unlockNextLesson) {
         await LessonProgress.updateOne(
           { userId, lessonId: attempt.lessonId },
           {
@@ -283,7 +368,13 @@ exports.submitQuizAttempt = async (req, res) => {
       answeredCount,
       masteryLevel,
       weakTopics,
-      passed,
+      passed: progression.unlockNextLesson, // Map passed to unlockNextLesson for backwards compatibility where needed
+      learningState: progression.learningState,
+      actionType: progression.actionType,
+      unlockNextLesson: progression.unlockNextLesson,
+      practiceRequired: progression.practiceRequired,
+      summaryRecommended: progression.summaryRecommended,
+      mlPrediction: mlResult ? { ...mlResult, source: "ml" } : null
     });
   } catch (error) {
     return res.status(400).json({ message: error.message });

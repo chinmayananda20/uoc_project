@@ -196,42 +196,28 @@ const AdminContentPanel = () => {
       ) : (
         <div>
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {cards.map(({ title, value, sub, Icon, gradient, iconBg }) => (
+            {cards.map(({ title, value, sub, Icon }) => (
               <div
                 key={title}
-                className={[
-                  "relative overflow-hidden rounded-2xl p-5 sm:p-6 text-white shadow-md",
-                  "transition hover:-translate-y-1 hover:shadow-xl",
-                  `bg-gradient-to-br ${gradient}`,
-                ].join(" ")}
+                className="relative overflow-hidden rounded-2xl p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between min-h-[140px]"
               >
-                <div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
-                <div className="pointer-events-none absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-white/5 blur-2xl" />
-
                 <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="text-sm opacity-85">{title}</p>
-
-                    <div className="mt-3 flex items-baseline gap-2">
+                  <div className="space-y-1">
+                    <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{title}</span>
+                    <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-1">
                       {showSkeleton ? (
-                        <div className="h-10 w-24 rounded-xl bg-white/20 animate-pulse" />
+                        <span className="inline-block h-8 w-16 bg-slate-100 dark:bg-slate-800 animate-pulse rounded" />
                       ) : (
-                        <h2 className="text-4xl font-extrabold tracking-tight">
-                          {value}
-                        </h2>
+                        value
                       )}
-                    </div>
-
-                    <div className="mt-5 text-sm opacity-80">{sub}</div>
+                    </h2>
                   </div>
-
-                  <div className={`shrink-0 rounded-2xl ${iconBg} p-3`}>
-                    <Icon className="h-8 w-8" />
+                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-500 dark:text-slate-400">
+                    <Icon className="w-5 h-5" />
                   </div>
                 </div>
-
-                <div className="mt-6 h-1.5 w-full rounded-full bg-white/15 overflow-hidden">
-                  <div className="h-full w-2/3 bg-white/25" />
+                <div className="text-xs text-slate-400 dark:text-slate-500 font-medium pt-3 mt-3 border-t border-slate-100 dark:border-slate-800">
+                  {sub}
                 </div>
               </div>
             ))}

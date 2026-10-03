@@ -103,4 +103,48 @@ exports.getAllEnrollments = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+// GET /api/courses/:courseId/enrollments (admin/staff)
+exports.getCourseEnrollments = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      return res.status(400).json({ message: "Invalid courseId" });
+    }
+
+    const enrollments = await Enrollment.find({ courseId, status: "enrolled" })
+      .populate("userId", "name email role")
+      .sort({ createdAt: -1 });
+
+    return res.json(enrollments);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+const LessonProgress = require("../models/LessonProgress");
+
+// GET /api/courses/:courseId/progress (student)
+exports.getCourseProgress = async (req, res) => {
+  try {
+    const userId = getUserId(req);
+    const { courseId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      return res.status(400).json({ message: "Invalid courseId" });
+    }
+
+    const progressRecords = await LessonProgress.find({
+      userId,
+      courseId,
+      status: "completed",
+    }).select("lessonId");
+
+    const completedLessonIds = progressRecords.map((r) => r.lessonId.toString());
+
+    return res.json({ completedLessonIds });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
  

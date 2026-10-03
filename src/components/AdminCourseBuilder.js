@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import AdminLessonsManager from "./AdminLessonsManager";
 import AdminCourseCreateForm from "./AdminCourseCreateForm";
 import AdminQuizzesManager from "./AdminQuizzesManager";
+import AdminEnrolledStudents from "./AdminEnrolledStudents";
 
 export default function AdminCourseBuilder({ course, onBack, onCourseUpdated }) {
   const [tab, setTab] = useState("details");
@@ -72,6 +73,18 @@ export default function AdminCourseBuilder({ course, onBack, onCourseUpdated }) 
         >
           Quizzes
         </button>
+
+        <button
+          onClick={() => setTab("students")}
+          className={[
+            "rounded-xl px-5 py-2.5 font-black text-xs uppercase tracking-widest transition-all",
+            tab === "students"
+              ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-lg shadow-slate-200 dark:shadow-none"
+              : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700",
+          ].join(" ")}
+        >
+          Enrolled Students
+        </button>
       </div>
 
       <div className="mt-6">
@@ -86,8 +99,10 @@ export default function AdminCourseBuilder({ course, onBack, onCourseUpdated }) 
           />
         ) : tab === "lessons" ? (
           <AdminLessonsManager courseId={course._id} />
-        ) : (
+        ) : tab === "quizzes" ? (
           <AdminQuizzesManager courseId={course._id} />
+        ) : (
+          <AdminEnrolledStudents courseId={course._id} />
         )}
       </div>
     </div>

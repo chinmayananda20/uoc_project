@@ -58,6 +58,10 @@ exports.createQuestion = async (req, res) => {
       options: Array.isArray(options) ? options : [],
       correctAnswer,
       explanation: explanation ? String(explanation).trim() : "",
+      topic: payload.topic ? String(payload.topic).trim() : undefined,
+      subtopic: payload.subtopic ? String(payload.subtopic).trim() : undefined,
+      difficultyLevel: payload.difficultyLevel || "medium",
+      // retain existing fields
       topicTag: String(topicTag).trim(),
       difficulty: Number(difficulty),
       order: Number(order),
@@ -116,10 +120,12 @@ exports.updateQuestion = async (req, res) => {
       "options",
       "correctAnswer",
       "explanation",
-      "topicTag",
-      "difficulty",
-      "order",
-      "published",
+      "topic",
+      "subtopic",
+      "difficultyLevel",
+      "topic",
+      "subtopic",
+      "difficultyLevel",
     ];
 
     for (const key of allowed) {

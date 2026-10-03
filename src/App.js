@@ -11,6 +11,10 @@ import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 
 import { ThemeProvider } from "./context/ThemeContext";
+import CourseViewer from "./pages/CourseViewer";
+import QuizPlayer from "./pages/QuizPlayer";
+import LessonPlayer from "./pages/LessonPlayer";
+import PracticePlayer from "./pages/PracticePlayer";
 
 export default function App() {
   return (
@@ -33,7 +37,6 @@ export default function App() {
 
           <Route path="/" element={<Home />} />
 
-          
 <Route
   path="/admindashboard"
   element={
@@ -42,6 +45,10 @@ export default function App() {
     </RequireRole>
   }
 />
+<Route path="/course/:courseId" element={<CourseViewer />} />
+<Route path="/course/:courseId/quiz/:lessonId" element={<QuizPlayer />} />
+<Route path="/course/:courseId/lesson/:lessonId" element={<LessonPlayer />} />
+<Route path="/course/:courseId/practice/:practiceSetId" element={<PracticePlayer />} />
 
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />

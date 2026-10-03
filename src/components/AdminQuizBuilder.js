@@ -132,7 +132,7 @@ export default function AdminQuizBuilder({ lessonId }) {
 
     try {
       const payload = { ...qForm };
-      
+      payload.topic = payload.topicTag;
       // Cleanup payload based on type
       if (payload.type === "truefalse") {
         payload.options = [];
@@ -281,8 +281,6 @@ export default function AdminQuizBuilder({ lessonId }) {
                  <select value={qForm.type} onChange={e => setQForm({...qForm, type: e.target.value})} className="mt-2 w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 py-3.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-medium">
                     <option value="mcq">Multiple Choice</option>
                     <option value="truefalse">True / False</option>
-                    <option value="multi">Multiple Correct</option>
-                    <option value="code_trace">Code Trace</option>
                  </select>
                </div>
                <div>
@@ -290,8 +288,22 @@ export default function AdminQuizBuilder({ lessonId }) {
                  <input value={qForm.topicTag} onChange={e => setQForm({...qForm, topicTag: e.target.value})} className="mt-2 w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 py-3.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-medium" />
                </div>
                <div>
+                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Subtopic</label>
+                 <input value={qForm.subtopic || ""} onChange={e => setQForm({...qForm, subtopic: e.target.value})} className="mt-2 w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 py-3.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-medium" />
+               </div>
+               <div>
                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Difficulty (1-5)</label>
-                 <input type="number" min="1" max="5" value={qForm.difficulty} onChange={e => setQForm({...qForm, difficulty: Number(e.target.value)})} className="mt-2 w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 py-3.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-medium text-center" />
+                 <div className="grid grid-cols-2 gap-2 mt-2">
+                    <input type="number" min="1" max="5" value={qForm.difficulty} onChange={e => setQForm({...qForm, difficulty: Number(e.target.value)})} className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-3.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-medium text-center" />
+                    <select
+  value={qForm.difficultyLevel || "medium"}
+  onChange={e => setQForm({...qForm, difficultyLevel: e.target.value})}
+>
+  <option value="easy">Easy</option>
+  <option value="medium">Medium</option>
+  <option value="hard">Hard</option>
+</select>
+                 </div>
                </div>
                <div>
                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Sort Order</label>

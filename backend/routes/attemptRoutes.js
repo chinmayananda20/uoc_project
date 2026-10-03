@@ -11,7 +11,7 @@ const {
 } = require("../controllers/attemptController");
 
 // start attempt
-router.post("/quizzes/:quizId/attempts/start", auth,requireEnrollment({ lessonIdParam: "lessonId" }), startQuizAttempt);
+router.post("/quizzes/:quizId/attempts/start", auth, requireEnrollment({ quizIdParam: "quizId" }), startQuizAttempt);
 
 // answer a question (creates a QuestionAttempt; supports attemptNo)
 router.post(
