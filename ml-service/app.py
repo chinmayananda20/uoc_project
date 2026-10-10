@@ -1,9 +1,15 @@
 from flask import Flask, request, jsonify
 import joblib
 import traceback
-
+import os
 app = Flask(__name__)
-
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({
+        'status': 'ok',
+        'service': 'ml-service',
+        'modelLoaded': model is not None
+    })
 # Load model at startup (will be created by train_model.py)
 try:
     model = joblib.load('model/performance_model.pkl')
@@ -41,4 +47,5 @@ def predict_performance():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8001, debug=True)
+    port = int(os.environ.get('PORT', 8001))
+    app.run(host='0.0.0.0', port=port, debug=False)
