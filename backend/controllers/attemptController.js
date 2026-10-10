@@ -5,7 +5,7 @@ const Quiz = require("../models/Quiz");
 const Question = require("../models/Question");
 const Lesson = require("../models/Lesson");
 const Course = require("../models/Course");
-const LessonProgress = require("../models/LessonProgress");
+const LessonProgress = require("../models/Lessonprogress");
 const Enrollment = require("../models/Enrollment");
 // New imports for ML prediction
 const mlPredictionService = require("../services/mlPredictionService");

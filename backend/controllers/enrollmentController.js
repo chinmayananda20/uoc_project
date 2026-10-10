@@ -122,7 +122,7 @@ exports.getCourseEnrollments = async (req, res) => {
   }
 };
 
-const LessonProgress = require("../models/LessonProgress");
+const LessonProgress = require("../models/Lessonprogress");
 
 // GET /api/courses/:courseId/progress (student)
 exports.getCourseProgress = async (req, res) => {

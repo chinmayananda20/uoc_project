@@ -220,7 +220,7 @@ exports.submitPracticeSet = async (req, res) => {
     let unlockNextLesson = false;
     if (scorePercent >= 70 && req.user.role !== "admin") {
       unlockNextLesson = true;
-      const LessonProgress = require("../models/LessonProgress");
+      const LessonProgress = require("../models/Lessonprogress");
       const Enrollment = require("../models/Enrollment");
 
       await LessonProgress.updateOne(
