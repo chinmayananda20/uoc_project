@@ -1,6 +1,6 @@
 const PracticeSet = require("../models/PracticeSet");
 const PracticeAttempt = require("../models/PracticeAttempt");
-const QuizAttempt = require("../models/QuizAttempt");
+const QuizAttempt = require("../models/Quizattempt");
 const Question = require("../models/Question");
 const generator = require("../services/practiceGenerator");
 const geminiService = require("../services/geminiPracticeService");

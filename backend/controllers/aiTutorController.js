@@ -1,6 +1,6 @@
 const Lesson = require("../models/Lesson");
 const Course = require("../models/Course");
-const QuizAttempt = require("../models/QuizAttempt");
+const QuizAttempt = require("../models/Quizattempt");
 const Question = require("../models/Question");
 const Enrollment = require("../models/Enrollment");
 const engine = require("../services/nlpTutorEngine");
