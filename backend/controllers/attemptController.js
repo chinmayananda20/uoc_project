@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const QuizAttempt = require("../models/Quizattempt");
-const QuestionAttempt = require("../models/QuestionAttempt");
+const QuestionAttempt = require("../models/Questionattempt");
 const Quiz = require("../models/Quiz");
 const Question = require("../models/Question");
 const Lesson = require("../models/Lesson");
