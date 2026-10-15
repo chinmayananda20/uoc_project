@@ -20,7 +20,7 @@ The platform provides role-based access for learners and administrators.
 
 Supervisors, examiners, and academic evaluators who wish to explore the administrative features, course management functionality, and learner performance analytics can request a dedicated evaluation account.
 
-**Request Access:** [Your Email Address]
+**Request Access:** mandulachinmayananda@gmail.com
 
 **Live Application:** https://uoc-project-frontend.vercel.app
 
