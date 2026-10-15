@@ -14,6 +14,18 @@ Smart Path is an AI-powered micro-course learning platform designed to support b
 
 > **Deployment note:** The Render free-tier services can take extra time to respond after periods of inactivity. Production integration and feature-level testing are ongoing.
 
+### 🎓 Academic Evaluator Access
+
+The platform provides role-based access for learners and administrators.
+
+Supervisors, examiners, and academic evaluators who wish to explore the administrative features, course management functionality, and learner performance analytics can request a dedicated evaluation account.
+
+**Request Access:** [Your Email Address]
+
+**Live Application:** https://uoc-project-frontend.vercel.app
+
+Access credentials will be shared privately for academic evaluation purposes.
+
 ## Key features
 
 ### Learner experience
