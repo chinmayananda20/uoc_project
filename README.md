@@ -1,70 +1,229 @@
-# Getting Started with Create React App
+# Smart Path — AI-Powered Micro-Course Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+**MSc Advanced Computer Science Project | University of Chester**
 
-## Available Scripts
+Smart Path is an AI-powered micro-course learning platform designed to support bite-sized learning, track learner progress, and provide adaptive feedback. It combines a React-based learning interface, a Node.js/Express API, MongoDB persistence, a Python machine-learning prediction service, and an AI-assisted conversational tutor.
 
-In the project directory, you can run:
+## Live deployment
 
-### `npm start`
+| Component | URL | Hosting |
+| --- | --- | --- |
+| Web application | [Smart Path](https://uoc-project-frontend.vercel.app) | Vercel |
+| Backend health check | [API health](https://uoc-backend.onrender.com/api/health) | Render |
+| ML service health check | [ML health](https://uoc-project.onrender.com/health) | Render |
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+> **Deployment note:** The Render free-tier services can take extra time to respond after periods of inactivity. Production integration and feature-level testing are ongoing.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Key features
 
-### `npm test`
+### Learner experience
+- User registration, login, and password recovery workflows
+- Browse available courses and enroll
+- Access course lessons and track learning progress
+- Complete lesson quizzes and review performance
+- Receive performance-based recommendations and practice opportunities
+- Use an AI-powered tutor for learning assistance
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Administration
+- Administrative dashboard for course and lesson management
+- Quiz and question management
+- Learner and course administration workflows
 
-### `npm run build`
+### Adaptive learning
+- A separate Python prediction service processes quiz performance features
+- The application uses predicted performance to inform learning support
+- The intended learning flow distinguishes **weak**, **moderate**, and **good** performance to guide explanations, practice, or optional challenges
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Technology stack
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+| Layer | Technologies |
+| --- | --- |
+| Frontend | React, JavaScript, Create React App, Axios |
+| Backend | Node.js, Express.js |
+| Database | MongoDB Atlas, Mongoose |
+| Authentication | Token-based authentication (JWT) |
+| Machine learning | Python, Flask, scikit-learn, pandas, NumPy, joblib |
+| ML production server | Gunicorn |
+| Deployment | Vercel (frontend), Render (API and ML service) |
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## System architecture
 
-### `npm run eject`
+```text
+                   Browser / Learner / Admin
+                              |
+                              v
+                    React app (Vercel)
+                              |
+                         HTTPS / Axios
+                              |
+                              v
+                   Express API (Render)
+                       /      |       \
+                      v       v        v
+                MongoDB    Python ML   AI tutor
+                 Atlas      (Render)    provider
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+The frontend communicates with the Express API. The backend manages application data and invokes the Python ML service when performance predictions are needed. The AI tutor is integrated through a backend route, so provider credentials remain server-side.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Repository structure
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```text
+uoc_project/
+├── backend/             # Express API, routes, models, services
+├── ml-service/          # Flask prediction API and trained model
+├── public/              # React static assets
+├── src/                 # React application and API client
+├── package.json         # Frontend dependencies and scripts
+└── README.md
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Run locally
 
-## Learn More
+### Prerequisites
+- Node.js and npm
+- Python 3 and pip
+- Access to a MongoDB database
+- Valid credentials for any enabled email or AI integrations
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 1. Clone the repository
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+git clone https://github.com/chinmayananda20/uoc_project.git
+cd uoc_project
+```
 
-### Code Splitting
+### 2. Start the backend
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+cd backend
+npm install
+npm start
+```
 
-### Analyzing the Bundle Size
+Create `backend/.env` with the values required for your environment:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```dotenv
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_strong_random_secret
+FRONTEND_URL=http://localhost:3000
+ML_SERVICE_URL=http://localhost:8001/predict-performance
 
-### Making a Progressive Web App
+# Set only the integrations you use:
+EMAIL_USER=your_email_address
+EMAIL_PASS=your_email_app_password
+AI_PROVIDER=your_selected_provider
+GEMINI_API_KEY=your_gemini_api_key
+OPENAI_API_KEY=your_openai_api_key
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+The backend uses `PORT` if provided by the hosting environment. For local development, confirm its active port in the terminal and use that port in the frontend configuration.
 
-### Advanced Configuration
+### 3. Start the ML service
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+In a second terminal:
 
-### Deployment
+```bash
+cd ml-service
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python app.py
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+The ML service normally listens on `http://localhost:8001`. Its `/health` endpoint reports whether the trained model is loaded.
 
-### `npm run build` fails to minify
+### 4. Start the frontend
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+In a third terminal, from the repository root:
+
+```bash
+npm install
+```
+
+Create a `.env` file in the repository root:
+
+```dotenv
+REACT_APP_API_BASE_URL=http://localhost:8000/api
+```
+
+Change `8000` if your backend is listening on a different port. Then run:
+
+```bash
+npm start
+```
+
+Open `http://localhost:3000`.
+
+> **Important:** The API base URL includes `/api`. Frontend requests such as `/auth/login` are relative to this base URL.
+
+## Deployment configuration
+
+### Vercel — frontend
+
+```dotenv
+REACT_APP_API_BASE_URL=https://uoc-backend.onrender.com/api
+```
+
+For Create React App, `REACT_APP_*` variables are embedded into the browser build. Redeploy after changing them. Never place private credentials in these variables.
+
+### Render — Express backend
+
+Configure the required backend secrets and:
+
+```dotenv
+FRONTEND_URL=https://uoc-project-frontend.vercel.app
+ML_SERVICE_URL=https://uoc-project.onrender.com/predict-performance
+```
+
+The backend must allow the frontend origin through CORS. Render provides the production `PORT` automatically.
+
+### Render — Python ML service
+
+- Root directory: `ml-service`
+- Build command: `pip install -r requirements.txt`
+- Start command: `gunicorn app:app`
+- Health check path: `/health`
+
+The saved model must be available at the path expected by `ml-service/app.py`. The project uses `scikit-learn==1.6.1` to match the trained model's version.
+
+## API overview
+
+The Express server mounts routes for authentication, courses, lessons, quizzes, questions, enrollments, practice, attempts, admin management, and AI tutoring. Selected route prefixes include:
+
+| Purpose | Route prefix |
+| --- | --- |
+| Health | `/api/health` |
+| Login | `/api/auth/login` |
+| Signup | `/api/auth/signup` |
+| Password recovery | `/api/auth/forgot-password` |
+| Courses | `/api/courses` |
+| Administration | `/api/admin` |
+| AI tutor | `/api/ai` |
+| Practice | `/api/practice` |
+
+Additional endpoints are defined in the respective backend route files.
+
+## Security and responsible use
+
+- Keep `.env` files and credentials out of version control.
+- Store MongoDB, email, JWT, and AI-provider secrets only on the server.
+- Use appropriately scoped database credentials and restrict network access where practical.
+- Do not use the prototype's ML predictions as high-stakes assessments of a learner's ability.
+- Verify privacy, consent, and research ethics requirements before collecting participant data for formal evaluation.
+
+## Project status
+
+The frontend, Express API, and ML service are deployed. Authentication connectivity has been verified in the live application. End-to-end testing of enrollment, quiz submission, adaptive predictions, and AI tutoring remains to be completed.
+
+## Academic context
+
+Developed as an MSc Advanced Computer Science project at the **University of Chester**.
+
+**Project title:** *AI-Powered Micro Course Platform with Machine Learning Driven Performance Analytics and NLP-Based Conversational Tutoring*
+
+**Developer:** Chinmayananda Mandula
+
+---
+
+*This repository is an academic project and an evolving prototype.*
