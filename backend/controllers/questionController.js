@@ -25,17 +25,19 @@ exports.createQuestion = async (req, res) => {
   try {
     const { quizId } = req.params;
     const {
-      type,
-      prompt,
-      options,
-      correctAnswer,
-      explanation,
-      topicTag,
-      difficulty,
-      order,
-      published,
-    } = req.body || {};
-
+  type,
+  prompt,
+  options,
+  correctAnswer,
+  explanation,
+  topicTag,
+  topic,
+  subtopic,
+  difficulty,
+  difficultyLevel,
+  order,
+  published,
+} = req.body || {};
     if (!mongoose.Types.ObjectId.isValid(quizId)) {
       return res.status(400).json({ message: "Invalid quizId" });
     }
@@ -58,9 +60,9 @@ exports.createQuestion = async (req, res) => {
       options: Array.isArray(options) ? options : [],
       correctAnswer,
       explanation: explanation ? String(explanation).trim() : "",
-      topic: payload.topic ? String(payload.topic).trim() : undefined,
-      subtopic: payload.subtopic ? String(payload.subtopic).trim() : undefined,
-      difficultyLevel: payload.difficultyLevel || "medium",
+      topic: topic ? String(topic).trim() : undefined,
+subtopic: subtopic ? String(subtopic).trim() : undefined,
+difficultyLevel: difficultyLevel || "medium",
       // retain existing fields
       topicTag: String(topicTag).trim(),
       difficulty: Number(difficulty),
@@ -115,18 +117,19 @@ exports.updateQuestion = async (req, res) => {
     if (!question) return res.status(404).json({ message: "Question not found" });
 
     const allowed = [
-      "type",
-      "prompt",
-      "options",
-      "correctAnswer",
-      "explanation",
-      "topic",
-      "subtopic",
-      "difficultyLevel",
-      "topic",
-      "subtopic",
-      "difficultyLevel",
-    ];
+  "type",
+  "prompt",
+  "options",
+  "correctAnswer",
+  "explanation",
+  "topic",
+  "subtopic",
+  "difficultyLevel",
+  "topicTag",
+  "difficulty",
+  "order",
+  "published",
+];
 
     for (const key of allowed) {
       if (key in req.body) question[key] = req.body[key];
