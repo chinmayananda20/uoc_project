@@ -1051,7 +1051,9 @@ export default function Home() {
             ))}
           </motion.div>
         </section>
-
+       <div className= 'w-full flex items-center justify center'>
+              <p> Note: All the Testonomials are dummy data, added just to feel the completeness of landing page</p>
+              </div>
         {/* Call to Action */}
 
         <motion.section
